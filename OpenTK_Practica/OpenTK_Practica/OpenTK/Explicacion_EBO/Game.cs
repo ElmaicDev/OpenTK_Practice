@@ -2,9 +2,10 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK_Practica.OpenTK.Explicacion_VBO_VAO_SHADERS.Shaders;
+using System.Diagnostics;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace OpenTK_Practica.OpenTK
+namespace OpenTK_Practica.OpenTK.Explicacion_EBO
 {
     public class Game : GameWindow
     {
@@ -51,24 +52,38 @@ namespace OpenTK_Practica.OpenTK
 
         protected override void OnLoad()
         {
+            // con esto puedo ver la cantidad máxima de los shaders que podemos crear.
+            int nrAttrib = 0;
+            GL.GetInteger(GetPName.MaxVertexAttribs, out  nrAttrib);
+            Debug.WriteLine("Máximo número de atributos soportado:" +  nrAttrib);
+
             // el flujo inicial es que en el onload definamos buffers y vertex arrays y en el onrender se dibujem llamando a los que ya están por medio de las vinculaciones.
             base.OnLoad();
             GL.ClearColor(0.2f, 0.3f, 0.3f, 1f);
 
+            Shader = new Shader("shader.vert", "shader.frag");
             // Crear VBO
             VBO = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
 
-            // Así generamos el buffer Object  //SIN EMBARGO ES IMPORTANTE TENER EN CUENTA QUE PARA PODER CREAR UN EBO SE DEBE TENER PRIMERO UN VAO
+            // Crear VAO
+            VAO = GL.GenVertexArray();
+            GL.BindVertexArray(VAO);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+            GL.EnableVertexAttribArray(0);
 
+
+            // Así generamos el buffer Object  //SIN EMBARGO ES IMPORTANTE TENER EN CUENTA QUE PARA PODER CREAR UN EBO SE DEBE TENER PRIMERO UN VAO
+            // Entonces el flujo sería ---> VBO ----> VAO ----> EBO
             EBO = GL.GenBuffer();
 
             // como en VBO, nosotros queremos enlazar EBO con GL.BufferData, y hacer las llamadas con bind y unbind.
 
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO); // se enlaza el element buffer object 
             GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StreamDraw);
-            
+
+            Shader.Use();
 
         }
 
@@ -79,7 +94,7 @@ namespace OpenTK_Practica.OpenTK
             GL.Clear(ClearBufferMask.ColorBufferBit); // Limpia la ventana usando el color definido en OnLoad. Es la primer función que siempre se debe llamar en el renderizado.
 
 
-
+            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
 
 
             //Cualquier OpenGL context (Context.SwapBuffers) es conocido como doble búfer que son dos áreas en las que OpenGL dibuja, una es la que está siendo mostrada, y la otra es la que está siendo renderizada.

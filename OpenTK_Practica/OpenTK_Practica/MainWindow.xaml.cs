@@ -1,4 +1,5 @@
-﻿using OpenTK_Practica.OpenTK.Explicacion_VBO_VAO_SHADERS;
+﻿//using OpenTK_Practica.OpenTK.Explicacion_VBO_VAO_SHADERS;
+using OpenTK_Practica.OpenTK.Explicacion_EBO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
