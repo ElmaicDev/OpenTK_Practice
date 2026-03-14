@@ -1,0 +1,154 @@
+# ==========================================
+#   .gitignore — Librería OpenTK en C#
+# ==========================================
+
+# ------------------------------------------
+# Directorios de compilación
+# ------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+
+# ------------------------------------------
+# Visual Studio
+# ------------------------------------------
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Archivos temporales de VS
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+
+# ------------------------------------------
+# Rider (JetBrains)
+# ------------------------------------------
+.idea/
+*.sln.iml
+
+# ------------------------------------------
+# .NET / C#
+# ------------------------------------------
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+!**/packages/repositories.config
+*.nuspec
+
+# Publish
+**/publish/
+**/PublishProfiles/
+
+# ------------------------------------------
+# OpenTK / Recursos gráficos
+# ------------------------------------------
+
+# Shaders compilados
+*.spv
+*.glsl.cache
+
+# Texturas y assets pesados (opcional, 
+# comenta si quieres versionar assets)
+# *.png
+# *.jpg
+# *.jpeg
+# *.bmp
+# *.tga
+# *.dds
+# *.hdr
+# *.ktx
+
+# Modelos 3D generados/exportados
+*.fbx
+*.blend1
+
+# Archivos de caché de OpenGL/OpenTK
+*.glcache
+*.shadercache
+
+# ------------------------------------------
+# Archivos de sistema operativo
+# ------------------------------------------
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ------------------------------------------
+# Variables de entorno y secretos
+# ------------------------------------------
+.env
+.env.*
+*.env
+secrets.json
+appsettings.Local.json
+appsettings.Development.json
+
+# ------------------------------------------
+# Cobertura de pruebas
+# ------------------------------------------
+coverage/
+*.coverage
+*.coveragexml
+TestResults/
+[Tt]est[Rr]esult*/
+
+# ------------------------------------------
+# Benchmarks y profiling
+# ------------------------------------------
+BenchmarkDotNet.Artifacts/
+*.diagsession
+*.psess
+*.vsp
+*.vspx
+
+# ------------------------------------------
+# Documentación generada
+# ------------------------------------------
+_site/
+doc/_build/
+api/
+
+# ------------------------------------------
+# Otros
+# ------------------------------------------
+*.tmp
+*.temp
+*.bak
+*.swp
+*.orig
