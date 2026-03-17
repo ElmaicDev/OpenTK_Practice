@@ -75,3 +75,30 @@ el fragment shader requiere un vec4 color output variable, desde que necesita pa
 los colores, se renderiza en blanco o negro.
 
 Si queremos pasar datos de un shader a otro, declaramos un out en el primero y un in en el segundo. Cuando el tipo y el nombre coinciden en ambos lados, OpenGL los enlaza automáticamente al momento de linkear el programa.
+
+# Uniforms
+Uniforms son otra forma de pasar datos desde la app alojada en la cpu, a los shaders en la GPU. Los uniforms son globales, es única por shader program
+y puede ser accedida desde cualquier shader, en cualquier etapa del programa del shader. 
+
+Segundo, los valores asignados a los uniforms se mantendrán hasta que sea reiniciado o actualizado.
+
+Para declarar un uniform se debe usar uniform keword en el shader con un tipo y el nombre así:
+- uniform vec4 ourColor; 
+
+Como se puede cambiar el color del uniform en cualquier etapa del shader, no es necesario ir al shader vertex para pasarle info al frag,
+sino que podemos actualizar esta información de la siguiente manera: 
+
+```
+double timeValue = _timer.Elapsed.TotalSeconds;
+float greenValue = (float)Math.Sin(timeValue) / 2.0f + 0.5f;
+int vertexColorLocation = GL.GetUniformLocation(_shader.Handle, "ourColor");
+GL.Uniform4(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+```
+
+# Más atriibutos
+Se consigue modificando los vertex shaders para pasarle el color en rgb, al igual, se dbe emodificar el fragment para que 
+reciba como input estos colores 
+
+![Imagen](Shaders_Mas_Atributos/MasAtributosBuffer.png) 
+
+

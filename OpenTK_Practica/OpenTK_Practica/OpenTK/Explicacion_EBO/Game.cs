@@ -1,9 +1,8 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using OpenTK_Practica.OpenTK.Explicacion_VBO_VAO_SHADERS.Shaders;
+using OpenTK_Practica.Shaders;
 using System.Diagnostics;
-using System.Runtime.InteropServices.Marshalling;
 
 namespace OpenTK_Practica.OpenTK.Explicacion_EBO
 {
@@ -11,7 +10,7 @@ namespace OpenTK_Practica.OpenTK.Explicacion_EBO
     {
 
         Shader Shader;
-
+        Stopwatch _timer = Stopwatch.StartNew(); // Esto es un cronómetro, por eso es que si está dentro de On Render no funciona, porque se reinicia en cada iteración.
 
         // como opengl solo funciona con triángulos, tocaría almacenar de esta forma para generar un rectángulo, haciendo bottom Right y bottomLeft dos veces en el arreglo.
         // float[] vertices = {
@@ -54,8 +53,8 @@ namespace OpenTK_Practica.OpenTK.Explicacion_EBO
         {
             // con esto puedo ver la cantidad máxima de los shaders que podemos crear.
             int nrAttrib = 0;
-            GL.GetInteger(GetPName.MaxVertexAttribs, out  nrAttrib);
-            Debug.WriteLine("Máximo número de atributos soportado:" +  nrAttrib);
+            GL.GetInteger(GetPName.MaxVertexAttribs, out nrAttrib);
+            Debug.WriteLine("Máximo número de atributos soportado:" + nrAttrib);
 
             // el flujo inicial es que en el onload definamos buffers y vertex arrays y en el onrender se dibujem llamando a los que ya están por medio de las vinculaciones.
             base.OnLoad();
@@ -93,9 +92,30 @@ namespace OpenTK_Practica.OpenTK.Explicacion_EBO
 
             GL.Clear(ClearBufferMask.ColorBufferBit); // Limpia la ventana usando el color definido en OnLoad. Es la primer función que siempre se debe llamar en el renderizado.
 
+            Shader.Use();
 
+            // 1- Obtenemos el tiempo en segundos con stopWatch. Luego variamos el rango de color de 0 - 1, usando seno y ese valor se almacena en greenValue
+            
+            double timeValue = _timer.Elapsed.TotalSeconds;
+
+            float greenValue = (float)Math.Sin(timeValue) / 2.0f + 0.5f;
+
+            // 2- Buscamos la ubicación del uniform dentro del shader, con GetUniformLocation, con el handle del shader en el que queremos buscar el objeto
+            int vertexColorLocation = GL.GetUniformLocation(Shader.Handle, "ourColor");
+
+            // Luego, seteamos el valor del uniform usando GL.Uniform4.  Encontrar el getUniformLocation no necesite el useProgram
+            // pero agregar el color definitivamente lo necesita.
+            //Diferentes uniforms que se pueden definir: 
+            // 1- f: espera un float como valor.
+            // 2- i: espera un int como valor
+            // 3- ui: espera un uint como valor
+            // 4- 3f:espera 3 floats como valor 
+            // 5- fv: espera un vector/array float como valor.
+            GL.Uniform4(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
-
+            //GL.DrawArrays(PrimitiveType.Triangles, 0, vertices.Length);
 
             //Cualquier OpenGL context (Context.SwapBuffers) es conocido como doble búfer que son dos áreas en las que OpenGL dibuja, una es la que está siendo mostrada, y la otra es la que está siendo renderizada.
             // Cuando se llama el swap Buffers se reservan las dos áreas de dibujo para ser usadas.

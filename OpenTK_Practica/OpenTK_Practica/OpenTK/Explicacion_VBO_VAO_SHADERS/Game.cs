@@ -1,7 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using OpenTK_Practica.OpenTK.Explicacion_VBO_VAO_SHADERS.Shaders;
+using OpenTK_Practica.Shaders;
 
 namespace OpenTK_Practica.OpenTK.Explicacion_VBO_VAO_SHADERS
 {

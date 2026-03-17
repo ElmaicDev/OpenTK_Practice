@@ -2,11 +2,11 @@
 using System.IO;
 using System.Diagnostics;
 
-namespace OpenTK_Practica.OpenTK.Explicacion_VBO_VAO_SHADERS.Shaders
+namespace OpenTK_Practica.Shaders
 {
     public class Shader : IDisposable
     {
-        int Handle; // representa la ubicación final del shader después de que termina siendo compilado. 
+        public int Handle; // representa la ubicación final del shader después de que termina siendo compilado. 
         private bool disposedValue = false;
          
         /// <summary>
