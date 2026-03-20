@@ -17,7 +17,7 @@ namespace OpenTK_Practica.Texturas
         {
             // Esto generará una textura en blanco, vacía.
             Handle = GL.GenTexture();
-
+            Use();
             // stb_image carga desde el pixel de superior-izquierda, mientras que Opengl carga desde inferior-Izquierda, haciendo que se invierta la textura verticalmente.
             // Este comando corregirá esa inversión vertical.
             StbImage.stbi_set_flip_vertically_on_load(1); // indica que debe ir flipped para que se cargue bien.
@@ -44,10 +44,10 @@ namespace OpenTK_Practica.Texturas
 
 
             // CON ESTO SE FINALIZA LA CREACIÓN DE LA TEXTURA. AHORA SE NECESITARÁ MODIFICAR LOS SHADERS Y LOS VERTICES PARA USAR LA TEXTURA.
-            Use();
+            
         }
 
-        private void Use()
+        public void Use()
         {
             GL.BindTexture(TextureTarget.Texture2D, Handle);
         }

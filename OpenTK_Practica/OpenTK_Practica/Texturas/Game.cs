@@ -22,9 +22,16 @@ namespace OpenTK_Practica.OpenTK.Texturas
             -0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // top left
         };
 
+        uint[] _indices =
+        {
+            0, 1, 3,
+            1, 2, 3
+        };
+
         int VBO;
         int VAO;
-        int Texture;
+        int EBO;
+        Texture Texture;
         public Game(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize = (width, height), Title = title }) { }
 
         protected override void OnLoad()
@@ -39,27 +46,39 @@ namespace OpenTK_Practica.OpenTK.Texturas
             GL.ClearColor(0.2f, 0.3f, 0.3f, 1f);
 
             Shader = new Shader("shader.vert", "shader.frag");
+            Shader.Use();
+
+            // Crear VAO
+            VAO = GL.GenVertexArray();  // al parecer siempre es mejor crear el vao primero
+            GL.BindVertexArray(VAO);
+
             // Crear VBO
             VBO = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
 
-            // Crear VAO
-            VAO = GL.GenVertexArray();
-            GL.BindVertexArray(VAO);
+            
 
             // Debemos modificar el VAO porque ya tenemos son otra estruxtura para las coordenadas de la textura.
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0); // Acá el offset es 0, porque la positicón comienza desde la primer ordenada del buffer
             GL.EnableVertexAttribArray(0);
 
+
+            // Crear EBO para indicar cuáles son los vertices con  los que se conformará la  estructura
+            EBO = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
+
+
             int textCoordLocation = Shader.GetAttribLocation("aTextCoord");
+            GL.VertexAttribPointer(textCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float)); //esto extrae la coordenada de vertices.
             GL.EnableVertexAttribArray(textCoordLocation);
-            GL.VertexAttribPointer(textCoordLocation,2,VertexAttribPointerType.Float, false, 5 * sizeof(float), 3*sizeof(float)); //esto extrae la coordenada de vertices.
+
 
             // Ahora solo se modifican los shaders.
 
-            var texture = new Texture("./wooden.jpg");
-            Texture = texture.Handle;
+            Texture = new Texture("./wooden.jpg");
+            GL.Uniform1(GL.GetUniformLocation(Shader.Handle, "texture0"), 0);
 
 
 
@@ -83,7 +102,6 @@ namespace OpenTK_Practica.OpenTK.Texturas
             //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
             //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
 
-            Shader.Use();
 
         }
 
@@ -93,12 +111,14 @@ namespace OpenTK_Practica.OpenTK.Texturas
 
             GL.Clear(ClearBufferMask.ColorBufferBit); // Limpia la ventana usando el color definido en OnLoad. Es la primer función que siempre se debe llamar en el renderizado.
 
-            Shader.Use();
 
-            GL.BindTexture(TextureTarget.Texture2D, Texture);
+            Shader.Use();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            Texture.Use(); //Bindea la textura.
             GL.BindVertexArray(VAO);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-           
+            GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+
+
 
             SwapBuffers();
 
