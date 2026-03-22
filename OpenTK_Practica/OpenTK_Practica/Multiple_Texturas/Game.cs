@@ -5,7 +5,7 @@ using OpenTK_Practica.Shaders;
 using OpenTK_Practica.Texturas;
 using System.Diagnostics;
 
-namespace OpenTK_Practica.OpenTK.Texturas
+namespace OpenTK_Practica.OpenTK.Multiple_Texturas
 {
     public class Game : GameWindow
     {

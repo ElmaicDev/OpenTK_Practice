@@ -3,7 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 using StbImageSharp; // librería que permite cargar imágenes a c#
 using System.IO;
 
-namespace OpenTK_Practica.Texturas
+namespace OpenTK_Practica.Multiple_Texturas
 {
 
     /// <summary>
