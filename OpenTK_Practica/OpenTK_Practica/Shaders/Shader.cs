@@ -110,6 +110,18 @@ namespace OpenTK_Practica.Shaders
         {
             return GL.GetAttribLocation(Handle, attribName);
         }
+
+        /// <summary>
+        /// Esta función simplifica el proceso de configurar un uniform de un shader. Los samplers son representados como ints en la cpu.
+        /// Acá se extablece el uniform como un entero y chequeará la texture unit. Y decide que Texture unit se usará.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public void SetInt(string name, int value)
+        {
+            int location = GL.GetUniformLocation(Handle, name);
+            GL.Uniform1(location, value);
+        }
     }
 }
 

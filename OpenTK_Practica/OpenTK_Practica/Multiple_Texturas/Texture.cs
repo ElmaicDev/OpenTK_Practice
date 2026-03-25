@@ -47,8 +47,9 @@ namespace OpenTK_Practica.Multiple_Texturas
             
         }
 
-        public void Use()
+        public void Use(TextureUnit textureUnit = TextureUnit.Texture0)
         {
+            GL.ActiveTexture(textureUnit); // se debe activar la textura que se quiere bindear, porque ahora vamos a crear diferentes textura.
             GL.BindTexture(TextureTarget.Texture2D, Handle);
         }
     }

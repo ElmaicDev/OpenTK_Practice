@@ -2,7 +2,7 @@
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK_Practica.Shaders;
-using OpenTK_Practica.Texturas;
+using OpenTK_Practica.Multiple_Texturas;
 using System.Diagnostics;
 
 namespace OpenTK_Practica.OpenTK.Multiple_Texturas
@@ -32,6 +32,7 @@ namespace OpenTK_Practica.OpenTK.Multiple_Texturas
         int VAO;
         int EBO;
         Texture Texture;
+        Texture Texture2;
         public Game(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize = (width, height), Title = title }) { }
 
         protected override void OnLoad()
@@ -79,7 +80,10 @@ namespace OpenTK_Practica.OpenTK.Multiple_Texturas
 
             Texture = new Texture("./wooden.jpg");
 
+            Texture2 = new Texture("./emoji.png"); // Ahora la nueva textura está disponible, ahora se debe modificar la función del shader. (SetInt es la nueva función que se agrega después de esto)
 
+            Shader.SetInt("texture1", 0); // A esta función es importante pasarle los nombres de las texturas que están declarados en el shader frag
+            Shader.SetInt("texture2", 1);  // A esta función es importante pasarle los nombres de las texturas que están declarados en el shader frag
 
             // TEXTURAS -- VER MARKDOWN DE TEXTURAS.
             /// Parámetros 
@@ -110,11 +114,12 @@ namespace OpenTK_Practica.OpenTK.Multiple_Texturas
 
             GL.Clear(ClearBufferMask.ColorBufferBit); // Limpia la ventana usando el color definido en OnLoad. Es la primer función que siempre se debe llamar en el renderizado.
 
+            GL.BindVertexArray(VAO);
 
             Shader.Use();
-            GL.ActiveTexture(TextureUnit.Texture0);
-            Texture.Use(); //Bindea la textura.
-            GL.BindVertexArray(VAO);
+            Texture.Use(TextureUnit.Texture0);
+            Texture2.Use(TextureUnit.Texture1);
+
             GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
 
 
