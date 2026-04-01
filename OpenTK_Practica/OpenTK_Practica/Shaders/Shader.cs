@@ -1,6 +1,8 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System.IO;
 using System.Diagnostics;
+using OpenTK.Mathematics;
+using System.Text;
 
 namespace OpenTK_Practica.Shaders
 {
@@ -19,9 +21,11 @@ namespace OpenTK_Practica.Shaders
             int VertexShader;
             int FragmentShader;
 
-            string VertexShaderSource = File.ReadAllText(vertexPath); // Vertex Shader es el que se puede modificar de manera programática. Acá es el archivo .vert Al parecer los shaders los busca en debug.
-            string FragmentShaderSource = File.ReadAllText(fragmentPath); // acá es el archivo .frag
+            string VertexShaderSource = File.ReadAllText(vertexPath, Encoding.UTF8); // Vertex Shader es el que se puede modificar de manera programática. Acá es el archivo .vert Al parecer los shaders los busca en debug.
+            string FragmentShaderSource = File.ReadAllText(fragmentPath, Encoding.UTF8); // acá es el archivo .frag
 
+        
+            
             VertexShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(VertexShader, VertexShaderSource);
 
@@ -121,6 +125,12 @@ namespace OpenTK_Practica.Shaders
         {
             int location = GL.GetUniformLocation(Handle, name);
             GL.Uniform1(location, value);
+        }
+
+        public void SetMatrix4(string shaderProp, Matrix4 matriz)
+        {
+            int location = GL.GetUniformLocation(Handle, shaderProp);
+            GL.UniformMatrix4(location, false, ref matriz);
         }
     }
 }

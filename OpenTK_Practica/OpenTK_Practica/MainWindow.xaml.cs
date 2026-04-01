@@ -2,7 +2,7 @@
 //using OpenTK_Practica.OpenTK.Explicacion_EBO;
 //using OpenTK_Practica.OpenTK.Explicacion_Mas_Atributos;
 //using OpenTK_Practica.OpenTK.Texturas;
-using OpenTK_Practica.OpenTK.Multiple_Texturas;
+using OpenTK_Practica.OpenTK.Transformaciones;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
