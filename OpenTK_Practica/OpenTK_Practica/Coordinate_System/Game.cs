@@ -1,0 +1,179 @@
+﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using OpenTK_Practica.Multiple_Texturas;
+using OpenTK_Practica.Shaders;
+using OpenTK.Mathematics;
+using System.Diagnostics;
+using System.IO;
+
+namespace OpenTK_Practica.OpenTK.Coordinate_System
+
+{
+    public class Game : GameWindow
+    {
+
+        Shader Shader;
+
+        // las texturas se añaden a cada vertices. 
+        float[] vertices =
+        {
+            //Position          Texture coordinates
+             0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // top right
+             0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
+            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // top left
+        };
+
+        uint[] _indices =
+        {
+            0, 1, 3,
+            1, 2, 3
+        };
+
+        int VBO;
+        int VAO;
+        int EBO;
+        Texture Texture;
+        Texture Texture2;
+        public Game(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize = (width, height), Title = title }) { }
+
+        protected override void OnLoad()
+        {
+            // con esto puedo ver la cantidad máxima de los shaders que podemos crear.
+            int nrAttrib = 0;
+            GL.GetInteger(GetPName.MaxVertexAttribs, out nrAttrib);
+            Debug.WriteLine("Máximo número de atributos soportado:" + nrAttrib);
+
+            // el flujo inicial es que en el onload definamos buffers y vertex arrays y en el onrender se dibujem llamando a los que ya están por medio de las vinculaciones.
+            base.OnLoad();
+            GL.ClearColor(0.2f, 0.3f, 0.3f, 1f);
+
+        
+            Shader = new Shader("shader.vert", "shader.frag");
+
+            Shader.Use();
+            
+
+            // Crear VAO
+            VAO = GL.GenVertexArray();  // al parecer siempre es mejor crear el vao primero
+            GL.BindVertexArray(VAO);
+
+            // Crear VBO
+            VBO = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+
+            
+
+            // Debemos modificar el VAO porque ya tenemos son otra estruxtura para las coordenadas de la textura.
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0); // Acá el offset es 0, porque la positicón comienza desde la primer ordenada del buffer
+            GL.EnableVertexAttribArray(0);
+
+
+            // Crear EBO para indicar cuáles son los vertices con  los que se conformará la  estructura
+            EBO = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
+
+
+            int textCoordLocation = Shader.GetAttribLocation("aTextCoord");
+            GL.VertexAttribPointer(textCoordLocation, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float)); //esto extrae la coordenada de vertices.
+            GL.EnableVertexAttribArray(textCoordLocation);
+
+
+            // Ahora solo se modifican los shaders.
+
+
+            Texture = new Texture("./wooden.jpg");
+
+            Texture2 = new Texture("./emoji.png"); // Ahora la nueva textura está disponible, ahora se debe modificar la función del shader. (SetInt es la nueva función que se agrega después de esto)
+
+            Shader.SetInt("texture1", 0); // A esta función es importante pasarle los nombres de las texturas que están declarados en el shader frag
+            Shader.SetInt("texture2", 1);  // A esta función es importante pasarle los nombres de las texturas que están declarados en el shader frag
+
+
+            // TEXTURAS -- VER MARKDOWN DE TEXTURAS.
+            /// Parámetros 
+            /// 1. Especifica la tectura objetivo. En este caso una textura 2D (imagen)
+            /// 2. Especifica cua; option queremos de la imagen y los ejes, que sería S y T.
+            /// 3. Por último nos pide el modo de wrapping y la ponemos en repeat.
+            /// NOTA: Si escogemos TextureWrapMode.ClampToBorder, también debemos especificar el color del borde dentro del texparameter, por ejemplo: 
+            /// float[] borderColor = { 1.0f, 1.0f, 0.0f, 1.0f };        ----Importante
+            ///GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, borderColor); -----Importante
+
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+
+            //// Este código sirve para maximizar o minimizar una textura, magnify and minify  Ver las recomendaciones del md de texturas para saber porqué nearest o linear
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+            //// MIPMAPS --VER MARKDOWN DE TEXTURAS.  
+            //// Es un error común poner un mipmap filtering como un filtro de magnificación porque mipmap solo es usado para objetos que son minimizados.
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+
+        }
+
+        protected override void OnRenderFrame(FrameEventArgs e)
+        {
+            base.OnRenderFrame(e);
+
+            GL.Clear(ClearBufferMask.ColorBufferBit); // Limpia la ventana usando el color definido en OnLoad. Es la primer función que siempre se debe llamar en el renderizado.
+
+            GL.BindVertexArray(VAO);
+
+
+            // Empezamos con la matriz identidad que sale de OPENTK.Mathematics. Esta matriz es la matriz de transformación por defecto, es decir, no se le ha aplicado ninguna transformación.
+            var transform = Matrix4.Identity;
+            // LAS MATRICES EN OPENTK SON ROW MAJOR, POR ESO EN EL SHADER VERT SE MULTIPLICA  V X M Y NO M X V, PORQUE SI FUERA COLUMN MAJOR SE MULTIPLICARÍA M X V.
+            // ESTO INDICA QUE // So "rotate * translate" means rotate (around the origin) first and then translate, as opposed to "translate * rotate" which means translate and then rotate (around the origin).
+
+            // To combine two matrices, you multiply them. Here, we combine the transform matrix with another one created by OpenTK to rotate it by 20 degrees.
+            // Note that all Matrix4.CreateRotation functions take radians, not degrees. Use MathHelper.DegreesToRadians() to convert to radians, if you want to use degrees.
+            transform = transform * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(20f));
+
+            // Next, we scale the matrix. This will make the rectangle slightly larger.
+            transform = transform * Matrix4.CreateScale(1.1f);
+
+            // Then, we translate the matrix, which will move it slightly towards the top-right.
+            // Note that we aren't using a full coordinate system yet, so the translation is in normalized device coordinates.
+            // The next tutorial will be about how to set one up so we can use more human-readable numbers.
+            transform = transform * Matrix4.CreateTranslation(0.1f, 0.1f, 0.0f);
+
+            Shader.Use();
+            Texture.Use(TextureUnit.Texture0);
+            Texture2.Use(TextureUnit.Texture1);
+
+
+            // Now that the matrix is finished, pass it to the vertex shader.
+            // Go over to shader.vert to see how we finally apply this to the vertices.
+            Shader.SetMatrix4("transform", transform);
+
+            GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+
+           
+
+
+
+            SwapBuffers();
+
+        }
+
+        protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
+        {
+            base.OnFramebufferResize(e);
+
+            GL.Viewport(0, 0, e.Width, e.Height); // Se llama esta función cada que el framebuffer se redimensiona. 
+
+        }
+
+        protected override void OnUnload()
+        {
+            base.OnUnload();
+            Shader.Dispose();
+        }
+
+    }
+}
